@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Player.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">m13a-bug</a> &gt; <a href="index.source.html" class="el_package">unsw.gloriaromanus</a> &gt; <span class="el_source">Player.java</span></div><h1>Player.java</h1><pre class="source lang-java linenums">package unsw.gloriaromanus;
+
+import java.util.ArrayList;
+
+
+public class Player {
+    private ArrayList&lt;Province&gt; provinces;
+    private ArrayList&lt;Unit&gt; units;
+    private String name;
+    private Faction faction;
+    private Boolean turn;
+    private Boolean hasAttack;
+    private Game game;
+    private Goal goals;
+
+    /**
+     * 
+     * @param g goals of this player
+     * @param game the game 
+     */
+<span class="fc" id="L21">    public Player (ArrayList&lt;String&gt; g, Game game) {</span>
+<span class="fc" id="L22">        this.provinces = new ArrayList&lt;Province&gt;();</span>
+<span class="fc" id="L23">        this.units = new ArrayList&lt;Unit&gt;();</span>
+<span class="fc" id="L24">        this.faction = null;</span>
+<span class="fc" id="L25">        this.turn = false;</span>
+<span class="fc" id="L26">        this.hasAttack = false;</span>
+<span class="fc" id="L27">        this.game = game;</span>
+<span class="fc" id="L28">        this.goals=new Goal(g,this);</span>
+<span class="fc" id="L29">    }</span>
+
+    
+
+    public ArrayList&lt;Province&gt; getProvinces() {
+<span class="fc" id="L34">        return provinces;</span>
+    }
+
+    public Boolean getTurn() {
+<span class="fc" id="L38">        return turn;</span>
+    }
+
+    public void removeUnit(Unit a) {
+<span class="fc" id="L42">        units.remove(a);</span>
+<span class="fc" id="L43">    }</span>
+    public void removeProvince(Province p){
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">        if(p==null) return;</span>
+<span class="fc" id="L46">        provinces.remove(p);</span>
+<span class="fc" id="L47">    }</span>
+    public void addProvince(Province p){
+<span class="fc" id="L49">        provinces.add(p);</span>
+<span class="fc" id="L50">    }</span>
+
+    public String getName() {
+<span class="nc" id="L53">        return name;</span>
+    }
+    public Faction getFaction() {
+<span class="fc" id="L56">        return faction;</span>
+    }
+   
+   
+    public void setTurn(Boolean turn) {
+<span class="fc" id="L61">        this.turn = turn;</span>
+<span class="fc" id="L62">    }</span>
+    public void setFaction(Faction f){
+<span class="fc" id="L64">        this.faction = f;</span>
+<span class="fc" id="L65">        f.setOwner(this);</span>
+<span class="fc" id="L66">    }</span>
+
+
+
+/////////////   MAIN FUNCTIONALITY STARTS HERE      ////////
+
+    /**
+     * attack province p with units army
+     * @param army attacking units
+     * @param p attack dest
+     */
+    public void attack(ArrayList&lt;Unit&gt; army, Province p) {
+<span class="fc bfc" id="L78" title="All 2 branches covered.">        if(!turn)   return;</span>
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">        if(hasAttack)   return;</span>
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">        if (!moveUnitsTA(army, p))  return;</span>
+<span class="nc" id="L81">        hasAttack=true;</span>
+<span class="nc" id="L82">        BattleResolver.attack(p);</span>
+<span class="nc" id="L83">    }</span>
+
+    /**
+     * end turn for the current player
+     */
+    public void endTurn() {
+<span class="fc bfc" id="L89" title="All 2 branches covered.">        if(!turn)   return;</span>
+<span class="fc" id="L90">        hasAttack=false;</span>
+<span class="fc" id="L91">        setTurn(false);</span>
+<span class="fc" id="L92">    }</span>
+
+    /**
+     * move units to province p
+     * assumption: units are in the  same province
+     * @param units units to be moved
+     * @param p destination province
+     * @return whehter the move was successful
+     */
+    public Boolean moveUnits(ArrayList&lt;Unit&gt; units, Province p) {  
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">        if(!turn)   return false; </span>
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">        if(!p.getOwner().equals(this))  return false; </span>
+<span class="nc" id="L104">        Boolean res = moveUnitsTA(units, p);</span>
+<span class="nc" id="L105">        return res;</span>
+    }
+
+    /**
+     * move units to attack
+     * difference with moveUnit is that its dest can be enemy prov
+     * @param units units to be moved
+     * @param p destinatino province
+     * @return whether the move was sucessful
+     */
+    public Boolean moveUnitsTA(ArrayList&lt;Unit&gt; units, Province p) {
+<span class="fc bfc" id="L116" title="All 2 branches covered.">        if(!turn)   return false;</span>
+<span class="fc" id="L117">        Boolean isEnemy = units.get(0).getLocation().getOwner().equals(p.getOwner());</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">        if(!provinces.contains(p))  return false;</span>
+<span class="fc" id="L119">        String src = units.get(0).getLocation().getName();</span>
+<span class="fc" id="L120">        BFS bfs = new BFS(game);</span>
+<span class="fc" id="L121">        int np = bfs.bfs(src,p.getName());</span>
+<span class="fc bfc" id="L122" title="All 2 branches covered.">        if(np==-1)   return false;</span>
+<span class="fc" id="L123">        int mpneeded = np*4;</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">        for(Unit u: units){</span>
+<span class="pc bpc" id="L125" title="1 of 2 branches missed.">            if(u.getCurrentMovementPoints() &lt; mpneeded)   return false;</span>
+<span class="fc" id="L126">        }</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">        for(Unit u: units){</span>
+<span class="fc" id="L128">            u.subtractMovementPoint(mpneeded);</span>
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">            if(isEnemy){</span>
+<span class="fc" id="L130">                p.addEnemyUnit(u);</span>
+                
+                
+            }else{
+<span class="nc" id="L134">                p.addUnit(u);</span>
+            }
+<span class="fc" id="L136">            u.setPrevP(u.getLocation());</span>
+<span class="fc" id="L137">            u.setLocation(p);</span>
+<span class="fc" id="L138">            u.getPrevp().removeUnit(u);</span>
+<span class="fc" id="L139">        }</span>
+<span class="fc" id="L140">        return true;</span>
+    }
+
+    /**
+     * recruit a unit of type in province p
+     * @param type unit type
+     * @param p province where recruitment happen
+     * @return  the unit recruited or null
+     * @throws Exception 
+     */
+    public Unit recruit(String type, Province p) throws Exception {
+<span class="fc bfc" id="L151" title="All 2 branches covered.">        if(p.getOwner()!=this)  return null;</span>
+<span class="fc bfc" id="L152" title="All 2 branches covered.">        if(!turn)   return null;</span>
+<span class="fc" id="L153">        Unit u = p.recruitTroop(type);</span>
+<span class="pc bpc" id="L154" title="1 of 2 branches missed.">        if (u != null)</span>
+<span class="fc" id="L155">            units.add(u);</span>
+<span class="fc" id="L156">        return u;</span>
+    }
+
+    /**
+     * train a unit u in province p
+     * @param u unit to be trained
+     * @param p province where the unit belongs
+     * @return  whether the training occur
+     */
+    public Boolean train(Unit u, Province p) {
+<span class="fc bfc" id="L166" title="All 2 branches covered.">        if(!provinces.contains(p))  return false;</span>
+<span class="pc bpc" id="L167" title="1 of 2 branches missed.">        if(!turn)   return false;</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">        if (p.getTrainingSlot() &lt; 1)</span>
+<span class="nc" id="L169">            return false;</span>
+<span class="nc bnc" id="L170" title="All 4 branches missed.">        if (u.getState().equals(&quot;trained&quot;) || u.getState().equals(&quot;training&quot;))</span>
+<span class="nc" id="L171">            return false;</span>
+<span class="nc" id="L172">        int treasury = p.getWealth().getTeasury();</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">        if (u.getTrainCost() &gt; treasury)</span>
+<span class="nc" id="L174">            return false;</span>
+<span class="nc" id="L175">        p.addTroopInTraining(u);</span>
+<span class="nc" id="L176">        u.setState(&quot;training&quot;);</span>
+<span class="nc" id="L177">        p.getWealth().setTreasury(treasury - u.getTrainCost());</span>
+<span class="nc" id="L178">        p.setTrainingSlot(p.getTrainingSlot() - 1);</span>
+<span class="nc" id="L179">        return true;</span>
+    }
+
+    // public int CalculateTotalTreasurey() {
+    //     int sum = 0;
+    //     for (Province p : provinces)
+    //         sum += p.getWealth().getTeasury();
+    //     return sum;
+    // }
+
+    /**
+     * save game state using the  save class
+     */
+    public void save(){
+<span class="pc bpc" id="L193" title="1 of 2 branches missed.">        if(!turn)   return;</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">        if(hasAttack)   return;</span>
+<span class="nc" id="L195">        game.save();</span>
+<span class="nc" id="L196">    }</span>
+
+    /**
+     * load the game using loadgame function
+     */
+    public void load() {
+<span class="nc bnc" id="L202" title="All 2 branches missed.">        if(hasAttack) return;</span>
+<span class="nc" id="L203">        game.loadGame(this);</span>
+<span class="nc" id="L204">    }</span>
+    
+    // public int CalculateTotalWealth(){
+    //     int sum = 0;
+    //     for(Province p: provinces)  sum += p.getWealth().getWealthTown();
+    //     return sum;
+    // }
+
+    
+    /**
+     * set the  tax rate of a province p
+     * @param p province
+     * @param tr new taxrate of the province
+     */
+    public void setProvinceTR(Province p,int tr){
+<span class="nc bnc" id="L219" title="All 2 branches missed.">        if(!turn)   return;</span>
+<span class="nc" id="L220">        p.getWealth().setTaxRate(tr);</span>
+<span class="nc" id="L221">    }</span>
+
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

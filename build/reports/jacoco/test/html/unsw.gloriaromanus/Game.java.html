@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Game.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">m13a-bug</a> &gt; <a href="index.source.html" class="el_package">unsw.gloriaromanus</a> &gt; <span class="el_source">Game.java</span></div><h1>Game.java</h1><pre class="source lang-java linenums">// import package
+package unsw.gloriaromanus;
+
+// import libraries
+import java.util.ArrayList;
+
+
+public class Game {
+    /**
+     * this is a list of players in the game
+     */
+    private ArrayList&lt;Player&gt; players;
+
+    /**
+     * this is a list of available factions in the game
+     */
+    private ArrayList&lt;Faction&gt; factions;
+
+    /**
+     * this is a list of available provinces in the game
+     */
+    private ArrayList&lt;Province&gt; provinces;
+
+    /**
+     * constructor for Game class 
+     * @param battleResolver of type Battle resolver to determine the winner of engagements
+     * @param factions list of availabe factions in the game
+     * @param provinces list of availabe provinces in the game
+     */
+<span class="fc" id="L30">    public Game() throws Exception{</span>
+
+<span class="fc" id="L32">        this.factions = new ArrayList&lt;Faction&gt;();</span>
+<span class="fc" id="L33">        Faction rome = new Faction(&quot;Rome&quot;);</span>
+<span class="fc" id="L34">        Faction gaul = new Faction(&quot;Gaul&quot;);</span>
+<span class="fc" id="L35">        factions.add(rome);</span>
+<span class="fc" id="L36">        factions.add(gaul);</span>
+<span class="fc" id="L37">        this.provinces = new ArrayList&lt;Province&gt;();</span>
+<span class="fc" id="L38">        provinces.addAll(rome.getProvinces());</span>
+<span class="fc" id="L39">        provinces.addAll(gaul.getProvinces());</span>
+<span class="fc" id="L40">        this.players = new ArrayList&lt;Player&gt;();</span>
+<span class="fc" id="L41">    }</span>
+    
+    public void addPlayer(Player a){
+<span class="fc" id="L44">        players.add(a);</span>
+<span class="fc" id="L45">    }</span>
+
+    /**
+     * getter to obtain list of available provinces 
+     * @return returns a list of province objects
+     */
+    public ArrayList&lt;Province&gt; getProvinces() {
+<span class="fc" id="L52">        return provinces;</span>
+    }
+
+    
+
+    /**
+     * to save the game
+     */
+    public void save() {
+<span class="nc" id="L61">        new Save(this);</span>
+<span class="nc" id="L62">    }</span>
+
+    /**
+     * load the previously saved game
+     * @param player the player who wants to load the game
+     */
+    public void loadGame(Player player) {
+<span class="fc" id="L69">        new Load(this,player);</span>
+       // int i =0;
+        // for(i =0; i&lt; players.size();i++) {
+        //     if(player.equals(players.get(i)))   break;
+        // }
+<span class="fc" id="L74">        startGame(-1);</span>
+
+<span class="fc" id="L76">    }</span>
+
+    /**
+     * assigning factions randomly
+     */
+    public void assignFactions(){
+<span class="fc" id="L82">        Player p1 = players.get(0);</span>
+<span class="fc" id="L83">        Player p2 = players.get(1);</span>
+<span class="fc" id="L84">        int facN = BattleResolver.getRandomNumberUsingNextInt(0, 1);</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">        if(facN==0){</span>
+<span class="fc" id="L86">            p1.setFaction(factions.get(0));</span>
+<span class="fc" id="L87">            p2.setFaction(factions.get(1));</span>
+        }else{
+<span class="nc" id="L89">            p2.setFaction(factions.get(0));</span>
+<span class="nc" id="L90">            p1.setFaction(factions.get(1));</span>
+        } 
+<span class="fc" id="L92">    }</span>
+
+
+    /**
+     * start game from user usr
+     * @param usr the player to start
+     */
+    public void startGame(int usr) {
+        //BUG ALERT
+        //IF IT'S START NEW GAME, PASS IN 0
+        //otherwise don't worry
+<span class="fc" id="L103">        assignFactions();</span>
+       
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">        if(usr==-1) return;</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">        for(int i = usr; i&lt;players.size();i++){</span>
+            //everyone automatically update
+<span class="nc" id="L108">            Player curPlayer = players.get(i);</span>
+<span class="nc" id="L109">            BattleResolver.newTurn(curPlayer,provinces);</span>
+            
+<span class="nc" id="L111">            curPlayer.setTurn(false);</span>
+<span class="nc" id="L112">            Player winner = hasWinner();</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">            if(winner !=null){</span>
+<span class="nc" id="L114">                System.out.println(winner.getName()+&quot; has won!&quot;);</span>
+<span class="nc" id="L115">                return;</span>
+            }
+
+<span class="nc bnc" id="L118" title="All 2 branches missed.">            if(i==players.size()-1) i -=players.size();</span>
+        }
+<span class="nc" id="L120">    }</span>
+
+    /**
+     * whether the game has winner
+     * @return the winner player 
+     */
+    public Player hasWinner(){
+        //simple one: if one has all provinces
+        // for(Player p: players){
+        //     if(p.win()) return true;
+        // }
+<span class="fc" id="L131">        Player p1 = players.get(0);</span>
+<span class="fc" id="L132">        Player p2 = players.get(1);</span>
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">        if(p1.getProvinces().size()==53){</span>
+<span class="nc" id="L134">            return p1;</span>
+<span class="pc bpc" id="L135" title="1 of 2 branches missed.">        }else if(p2.getProvinces().size()==53){</span>
+<span class="nc" id="L136">            return p2;</span>
+        }
+<span class="fc" id="L138">        return null;</span>
+    }
+
+    //              HELPER FUNCTIONS            
+
+
+    /**
+     * get the province object from its name
+     * @param name name of the province
+     * @return the province object
+     */
+    public Province getProvinceByName(String name){
+<span class="pc bpc" id="L150" title="1 of 2 branches missed.">        for(Province p: provinces){</span>
+<span class="fc bfc" id="L151" title="All 2 branches covered.">            if(p.getName().equals(name)) return p;</span>
+<span class="fc" id="L152">        }</span>
+<span class="nc" id="L153">        return null;</span>
+    }
+
+    /**
+     * whehter two provinces are enemy
+     * @param pn1
+     * @param pn2
+     * @return
+     */
+    public Boolean isEnemy(String pn1, String pn2){
+<span class="fc" id="L163">        Province p1 = getProvinceByName(pn1);</span>
+<span class="fc" id="L164">        Province p2 = getProvinceByName(pn2);</span>
+<span class="fc" id="L165">        return p1.getOwner().equals(p2.getOwner());</span>
+    }
+
+    public void addFaction(Faction f) {
+<span class="fc" id="L169">        factions.add(f);</span>
+<span class="fc" id="L170">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="test.BattleResolverTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2020-11-01T18:01:58" hostname="ER28-2554.local" time="0.193">
+  <properties/>
+  <testcase name="attackTest()" classname="test.BattleResolverTest" time="0.009"/>
+  <testcase name="inflictCasualtyTest()" classname="test.BattleResolverTest" time="0.011"/>
+  <testcase name="finishTrainingTest()" classname="test.BattleResolverTest" time="0.001"/>
+  <testcase name="getEngagementTypeTest()" classname="test.BattleResolverTest" time="0.007"/>
+  <testcase name="newTurnTest()" classname="test.BattleResolverTest" time="0.018"/>
+  <testcase name="resetProvinceTest()" classname="test.BattleResolverTest" time="0.142"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

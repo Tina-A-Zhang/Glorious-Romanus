@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BattleResolver.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">m13a-bug</a> &gt; <a href="index.source.html" class="el_package">unsw.gloriaromanus</a> &gt; <span class="el_source">BattleResolver.java</span></div><h1>BattleResolver.java</h1><pre class="source lang-java linenums">package unsw.gloriaromanus;
+
+import java.util.ArrayList;
+import java.util.Random;
+import java.lang.Math;
+import java.util.concurrent.ThreadLocalRandom;
+
+
+public interface BattleResolver {
+
+    /**
+     * two units inflict casualty on each other in et type battle
+     * @param atk the attacking unit
+     * @param dfn the defending unit
+     * @param et the engagement type
+     */
+    public static void inflictCasualty(Unit atk, Unit dfn, String et){
+<span class="fc" id="L18">        String atk_kind = atk.getKind();</span>
+<span class="fc" id="L19">        String dfn_kind = dfn.getKind();</span>
+<span class="fc bfc" id="L20" title="All 2 branches covered.">        if(!atk_kind.equals(dfn_kind)){</span>
+<span class="fc" id="L21">            MeleeRanged.inflictCasualty(atk,dfn,et);</span>
+<span class="pc bpc" id="L22" title="1 of 2 branches missed.">       }else if(atk_kind.equals(&quot;melee&quot;)){</span>
+<span class="nc" id="L23">           MeleeMelee.inflictCasualty(atk,dfn);</span>
+       }else{
+<span class="fc" id="L25">           RangedRanged.inflictCasualty(atk,dfn);</span>
+       }
+<span class="fc" id="L27">    }</span>
+
+    /**
+     * attack a province
+     * @param p the province to attack
+     * @return whether the attack was successful
+     */
+    public static Boolean attack(Province p){
+        //Player attacker = p.getEnemyUnits().get(0).getPrevp().getOwner();
+<span class="pc bpc" id="L36" title="1 of 2 branches missed.">        for(int i = 0; i &lt; 200; i++){</span>
+<span class="pc bpc" id="L37" title="3 of 4 branches missed.">            if(p.availUnits().isEmpty() || p.getEnemyUnits().isEmpty()) break;</span>
+<span class="nc" id="L38">            Unit atk = chooseUnit(p.getEnemyUnits());</span>
+<span class="nc" id="L39">            Unit dfn = chooseUnit(p.availUnits());</span>
+<span class="nc" id="L40">            String et = getEngagementType(atk, dfn);</span>
+<span class="nc" id="L41">            inflictCasualty(atk, dfn, et);</span>
+<span class="nc" id="L42">            Unit route = handleBreak(atk, dfn,et);</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">            if(route!=null){</span>
+<span class="nc" id="L44">                p.addRoutedUnit(route);</span>
+            }
+            //clear dead &amp;&amp; update
+<span class="nc bnc" id="L47" title="All 2 branches missed.">            if(atk.getCurrentSize()==0){</span>
+<span class="nc" id="L48">                p.removeEnemyUnit(atk);</span>
+<span class="nc" id="L49">                atk.getPrevp().getOwner().removeUnit(atk);</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">            }else if(dfn.getCurrentSize()==0){</span>
+<span class="nc" id="L51">                p.removeUnit(dfn);</span>
+<span class="nc" id="L52">                dfn.getPrevp().getOwner().removeUnit(dfn);</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">            }else if(atk.equals(route)){</span>
+<span class="nc" id="L54">                p.removeEnemyUnit(atk);</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">            }else if(dfn.equals(route)){</span>
+<span class="nc" id="L56">                p.removeUnit(dfn);</span>
+            }
+        }
+       
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">       if(p.availUnits().isEmpty()){</span>
+        //attack won
+           // resetProvince(attacker,p);
+<span class="fc" id="L63">            return true;</span>
+        }else{
+        //defense won
+<span class="nc bnc" id="L66" title="All 2 branches missed.">            for(Unit u: p.getRoutedUnits()){</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">                if(isPreviousOwner(u)){</span>
+<span class="nc" id="L68">                    u.getPrevp().addUnit(u);</span>
+                }else{
+<span class="nc" id="L70">                    p.addUnit(u);</span>
+                }
+<span class="nc" id="L72">            }</span>
+<span class="nc" id="L73">            p.clearRoutedUnit();</span>
+<span class="nc" id="L74">            return false;</span>
+        }
+    }
+
+    /**
+     * reset the ownership of a province
+     * happen when a province is conquered
+     * @param newOwner the new owner of the province 
+     * @param p the province to reset
+     */
+    public static void resetProvince(Player newOwner, Province p){
+<span class="fc" id="L85">        Player previousOwner = p.getOwner();</span>
+<span class="fc" id="L86">        p.clearUnits();</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        for(Unit u: p.getRoutedUnits()){ </span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">            if(isPreviousOwner(u)){</span>
+<span class="fc" id="L89">                previousOwner.removeUnit(u);</span>
+            }else{
+<span class="nc" id="L91">                p.addUnit(u);</span>
+            }
+<span class="fc" id="L93">        }</span>
+<span class="fc" id="L94">        p.clearRoutedUnit();</span>
+        //remove all units from previous owner's units
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        for(Unit u: p.getEnemyUnits()){</span>
+<span class="fc" id="L97">               p.addUnit(u);</span>
+<span class="fc" id="L98">        }</span>
+<span class="fc" id="L99">        p.clearEnemyUnit();</span>
+        //delete the province saving only the wealth and treasury
+<span class="fc" id="L101">        p.setTrainingSlot(2);</span>
+<span class="fc" id="L102">        p.clearTroopInTraining();</span>
+<span class="fc" id="L103">        previousOwner.removeProvince(p);</span>
+<span class="fc" id="L104">        newOwner.addProvince(p);</span>
+<span class="fc" id="L105">        p.setOwner(newOwner);</span>
+
+<span class="fc" id="L107">    }</span>
+
+    /**
+     * whether a unit belongs to the previous owner of the province
+     * @param a the unit 
+     * @return true if yes
+     */
+    public static Boolean isPreviousOwner(Unit a){
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">        return a.getCurrentMovementPoints()==a.getMovementPoints();</span>
+    }
+
+    /**
+     * get the chance of breaking and routing 
+     * perform related operations such as inflict casualty
+     * @param a the attacking unit
+     * @param d the defending unit
+     * @param et the engagement type
+     * @return
+     */
+    public static Unit handleBreak(Unit a, Unit d,String et){
+<span class="fc" id="L127">        Boolean aBreak = getBreakA(a, d);</span>
+<span class="fc" id="L128">        Boolean dBreak = getBreakA(d, a);</span>
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">        if(aBreak)  a.setBroken(true);</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">        if(dBreak)  d.setBroken(true);</span>
+<span class="pc bpc" id="L131" title="3 of 4 branches missed.">        if(aBreak&amp;&amp; dBreak)    return null;</span>
+<span class="fc" id="L132">        Boolean aRoute= false;</span>
+<span class="fc" id="L133">        Boolean dRoute = false;</span>
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">        if(aBreak){</span>
+<span class="nc bnc" id="L135" title="All 4 branches missed.">            while(!aRoute &amp;&amp; a.getCurrentSize()==0){</span>
+<span class="nc" id="L136">                inflictCasualty(a, d, et);</span>
+<span class="nc" id="L137">                aRoute=getRouteA(a, d);   </span>
+            } 
+        }else{
+<span class="pc bpc" id="L140" title="2 of 4 branches missed.">            while(!dRoute &amp;&amp; d.getCurrentSize()==0){</span>
+<span class="nc" id="L141">                inflictCasualty(a, d, et);</span>
+<span class="nc" id="L142">                dRoute=getRouteA(a, d);</span>
+            }
+        }
+<span class="pc bpc" id="L145" title="1 of 2 branches missed.">        if(aRoute)  return a;</span>
+<span class="fc" id="L146">        return d;</span>
+
+    }
+    
+
+
+    /**
+     * get the engagement type based on unit types and random chance
+     * @param a one unit
+     * @param b the other unit 
+     * @return the engagement type
+     */   
+    public static String getEngagementType(Unit a, Unit b) {
+<span class="fc" id="L159">        String type = &quot;&quot;;</span>
+<span class="fc bfc" id="L160" title="All 2 branches covered.">        if (a.getAttackType().equals(b.getAttackType())) {</span>
+<span class="fc bfc" id="L161" title="All 2 branches covered.">            if (a.getAttackType().equals(&quot;melee&quot;)) {</span>
+<span class="fc" id="L162">                type = &quot;melee&quot;;</span>
+            } else {
+<span class="fc" id="L164">                type = &quot;missile&quot;;</span>
+            }
+        } else {
+<span class="pc bpc" id="L167" title="1 of 2 branches missed.">            if (a.getAttackType().equals(&quot;melee&quot;)) {</span>
+<span class="fc" id="L168">                int melee_prob = 50 + 10 * (a.getSpeed() - b.getSpeed());</span>
+<span class="pc bpc" id="L169" title="1 of 2 branches missed.">                if (melee_prob &gt; 95) {</span>
+<span class="nc" id="L170">                    melee_prob = 95;</span>
+                }
+<span class="pc bpc" id="L172" title="1 of 2 branches missed.">                if (melee_prob &lt; 0) {</span>
+<span class="nc" id="L173">                    type = &quot;missile&quot;;</span>
+                }
+<span class="fc" id="L175">                int ran = BattleResolver.getRandomNumberUsingNextInt(0, 100);</span>
+<span class="pc bpc" id="L176" title="1 of 2 branches missed.">                if (ran &gt; melee_prob) {</span>
+<span class="nc" id="L177">                    type = &quot;missile&quot;;</span>
+                } else {
+<span class="fc" id="L179">                    type = &quot;melee&quot;;</span>
+                }
+
+            }
+        }
+<span class="fc" id="L184">        return type;</span>
+    }
+
+    /**
+     * finish the training on player pl's turn
+     * @param pl it's this player's turn
+     * @param provinces a list of all the provinces
+     */
+    public static void finishTraining(Player pl, ArrayList&lt;Province&gt; provinces){
+<span class="fc bfc" id="L193" title="All 2 branches covered.">        for(Province p: provinces){</span>
+<span class="pc bpc" id="L194" title="1 of 2 branches missed.">            for(Unit u: p.getTroopInTraining()){</span>
+
+<span class="nc" id="L196">                String kind = u.getKind();</span>
+<span class="nc bnc" id="L197" title="All 6 branches missed.">                if((kind.equals(&quot;Elepants&quot;)&amp;&amp;u.getLocation().getOwner().equals(pl) || !kind.equals(&quot;Elephants&quot;))){</span>
+<span class="nc" id="L198">                    u.setState(&quot;trained&quot;);</span>
+<span class="nc" id="L199">                    int curts = u.getLocation().getTrainingSlot();</span>
+<span class="nc" id="L200">                    u.getLocation().setTrainingSlot(curts+1);</span>
+<span class="nc" id="L201">                    u.getLocation().removeTroopInTraining(u);</span>
+                }
+<span class="nc" id="L203">            }</span>
+<span class="fc" id="L204">        }</span>
+<span class="fc" id="L205">    }</span>
+
+    /**
+     * allocate a new turn to a player
+     * @param player the player of the new turn
+     * @param p a list of all provinces
+     */
+    public static void newTurn(Player player, ArrayList&lt;Province&gt; p){
+<span class="fc" id="L213">        player.setTurn(true); </span>
+<span class="fc" id="L214">        resetMovementPoint(p);</span>
+<span class="fc" id="L215">        addAllGrowth(p);</span>
+<span class="fc" id="L216">        collectAllTax(p);</span>
+<span class="fc" id="L217">        finishTraining(player,p);</span>
+<span class="fc" id="L218">    }</span>
+
+    /**
+     * reset the movement points of all the units in a map
+     * preparing for a new turn
+     * @param pv a list of all provinces
+     */
+    public static void resetMovementPoint(ArrayList&lt;Province&gt; pv){
+<span class="fc bfc" id="L226" title="All 2 branches covered.">        for(Province p: pv){</span>
+<span class="pc bpc" id="L227" title="1 of 2 branches missed.">            for(Unit u: p.getUnits())    u.resetMP();</span>
+<span class="fc" id="L228">        }    </span>
+<span class="fc" id="L229">    }</span>
+
+    /**
+     * automatically collect all taxs
+     * used at the start of a turn
+     * @param provinces a listof all provinces
+     */
+    public static void collectAllTax(ArrayList&lt;Province&gt; provinces){
+<span class="fc bfc" id="L237" title="All 2 branches covered.">        for(Province p: provinces)  p.getWealth().tax();</span>
+<span class="fc" id="L238">    }</span>
+
+    /**
+     * add the growth of turn automatically to all provinces
+     * @param provinces a list of all provinces
+     */
+    public static void addAllGrowth(ArrayList&lt;Province&gt; provinces){
+<span class="fc bfc" id="L245" title="All 2 branches covered.">        for(Province p: provinces)  p.getWealth().addGrowth();</span>
+<span class="fc" id="L246">    }</span>
+
+    /**
+     * does the unit a break?
+     * @param a
+     * @param b
+     * @return true if yes
+     */
+    public static Boolean getBreakA(Unit a, Unit b){
+<span class="pc bpc" id="L255" title="1 of 2 branches missed.">        if(a.getCurrentSize()==0)   return false;</span>
+<span class="fc" id="L256">        double base = 1- a.getMorale()*0.1;</span>
+<span class="pc bpc" id="L257" title="1 of 2 branches missed.">        if(base ==0)    return false;</span>
+<span class="fc" id="L258">        double add = (a.getInitialSize()-a.getCurrentSize())*b.getInitialSize()*0.1/a.getInitialSize()*(b.getInitialSize()-b.getCurrentSize());</span>
+<span class="fc" id="L259">        double prob = base+add;</span>
+<span class="pc bpc" id="L260" title="1 of 2 branches missed.">        if(prob&lt;0.05)   prob = 0.05;</span>
+<span class="pc bpc" id="L261" title="1 of 2 branches missed.">        if(prob&gt;=1) return true;</span>
+<span class="fc" id="L262">        double ran = ThreadLocalRandom.current().nextDouble(0, 1);</span>
+<span class="fc bfc" id="L263" title="All 2 branches covered.">        if(ran&gt;prob)    return false;</span>
+<span class="fc" id="L264">        return true;</span>
+    }
+
+    /**
+     * whehter a routes successfully
+     * @param a
+     * @param b
+     * @return if a routes successfully, then true
+     */
+    public static Boolean getRouteA(Unit a, Unit b){
+<span class="nc bnc" id="L274" title="All 2 branches missed.">        if(a.getCurrentSize()==0)   return false;</span>
+<span class="nc" id="L275">        double prob = 0.5 + 0.1*(a.getSpeed()-b.getSpeed());</span>
+<span class="nc bnc" id="L276" title="All 2 branches missed.">        if(prob &lt;0.1) prob = 0.1;</span>
+<span class="nc bnc" id="L277" title="All 2 branches missed.">        if(prob&gt;=1)  return true;</span>
+<span class="nc" id="L278">        double ran = ThreadLocalRandom.current().nextDouble(0, 1);</span>
+<span class="nc bnc" id="L279" title="All 2 branches missed.">        if(ran&gt;prob)    return false;</span>
+<span class="nc" id="L280">        return true;</span>
+    }
+
+
+    /**
+     * randomly choosing a unit from list ul
+     * @param ul a list of units
+     * @return
+     */
+    public static Unit chooseUnit(ArrayList&lt;Unit&gt; ul){
+<span class="nc" id="L290">        int unit_index = getRandomNumberUsingNextInt(0, ul.size());</span>
+<span class="nc" id="L291">        return ul.get(unit_index);     </span>
+    }
+
+
+    /**
+     * generate a random integer betwen min and max
+     * @param min   minimum
+     * @param max maximum
+     * @return the random number
+     */
+    public static int getRandomNumberUsingNextInt(int min, int max) {
+<span class="fc" id="L302">        Random random = new Random();</span>
+<span class="fc" id="L303">        return random.nextInt(max - min) + min;</span>
+    }
+
+    /**
+     * generate a positive gaussian double
+     * @return the random double
+     */
+    public static double getPosGaussian(){
+<span class="fc" id="L311">        Random r  = new Random();</span>
+<span class="fc" id="L312">        return Math.abs(r.nextGaussian());</span>
+    }
+  
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GloriaRomanusController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">m13a-bug</a> &gt; <a href="index.source.html" class="el_package">unsw.gloriaromanus</a> &gt; <span class="el_source">GloriaRomanusController.java</span></div><h1>GloriaRomanusController.java</h1><pre class="source lang-java linenums">package unsw.gloriaromanus;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.geometry.Point2D;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.input.MouseButton;
+
+import com.esri.arcgisruntime.concurrent.ListenableFuture;
+import com.esri.arcgisruntime.data.FeatureTable;
+import com.esri.arcgisruntime.data.GeoPackage;
+import com.esri.arcgisruntime.geometry.Point;
+import com.esri.arcgisruntime.geometry.SpatialReferences;
+import com.esri.arcgisruntime.layers.FeatureLayer;
+import com.esri.arcgisruntime.loadable.LoadStatus;
+import com.esri.arcgisruntime.mapping.ArcGISMap;
+import com.esri.arcgisruntime.mapping.Basemap;
+import com.esri.arcgisruntime.mapping.view.Graphic;
+import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
+import com.esri.arcgisruntime.mapping.view.IdentifyLayerResult;
+import com.esri.arcgisruntime.mapping.view.MapView;
+import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
+import com.esri.arcgisruntime.symbology.TextSymbol;
+import com.esri.arcgisruntime.symbology.TextSymbol.HorizontalAlignment;
+import com.esri.arcgisruntime.symbology.TextSymbol.VerticalAlignment;
+import com.esri.arcgisruntime.data.Feature;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.geojson.FeatureCollection;
+import org.geojson.LngLatAlt;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+<span class="nc" id="L56">public class GloriaRomanusController{</span>
+
+  @FXML
+  private MapView mapView;
+  @FXML
+  private TextField invading_province;
+  @FXML
+  private TextField opponent_province;
+  @FXML
+  private TextArea output_terminal;
+
+  private ArcGISMap map;
+
+  private Map&lt;String, String&gt; provinceToOwningFactionMap;
+
+  private Map&lt;String, Integer&gt; provinceToNumberTroopsMap;
+
+  private String humanFaction;
+
+  private Feature currentlySelectedHumanProvince;
+  private Feature currentlySelectedEnemyProvince;
+
+  private FeatureLayer featureLayer_provinces;
+
+  @FXML
+  private void initialize() throws JsonParseException, JsonMappingException, IOException {
+    // TODO = you should rely on an object oriented design to determine ownership
+<span class="nc" id="L83">    provinceToOwningFactionMap = getProvinceToOwningFactionMap();</span>
+
+<span class="nc" id="L85">    provinceToNumberTroopsMap = new HashMap&lt;String, Integer&gt;();</span>
+<span class="nc" id="L86">    Random r = new Random();</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">    for (String provinceName : provinceToOwningFactionMap.keySet()) {</span>
+<span class="nc" id="L88">      provinceToNumberTroopsMap.put(provinceName, r.nextInt(500));</span>
+<span class="nc" id="L89">    }</span>
+
+    // TODO = load this from a configuration file you create (user should be able to
+    // select in loading screen)
+<span class="nc" id="L93">    humanFaction = &quot;Rome&quot;;</span>
+
+<span class="nc" id="L95">    currentlySelectedHumanProvince = null;</span>
+<span class="nc" id="L96">    currentlySelectedEnemyProvince = null;</span>
+
+<span class="nc" id="L98">    initializeProvinceLayers();</span>
+<span class="nc" id="L99">  }</span>
+
+  @FXML
+  public void clickedInvadeButton(ActionEvent e) throws IOException {
+<span class="nc bnc" id="L103" title="All 4 branches missed.">    if (currentlySelectedHumanProvince != null &amp;&amp; currentlySelectedEnemyProvince != null){</span>
+<span class="nc" id="L104">      String humanProvince = (String)currentlySelectedHumanProvince.getAttributes().get(&quot;name&quot;);</span>
+<span class="nc" id="L105">      String enemyProvince = (String)currentlySelectedEnemyProvince.getAttributes().get(&quot;name&quot;);</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">      if (confirmIfProvincesConnected(humanProvince, enemyProvince)){</span>
+        // TODO = have better battle resolution than 50% chance of winning
+<span class="nc" id="L108">        Random r = new Random();</span>
+<span class="nc" id="L109">        int choice = r.nextInt(2);</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">        if (choice == 0){</span>
+          // human won. Transfer 40% of troops of human over. No casualties by human, but enemy loses all troops
+<span class="nc" id="L112">          int numTroopsToTransfer = provinceToNumberTroopsMap.get(humanProvince)*2/5;</span>
+<span class="nc" id="L113">          provinceToNumberTroopsMap.put(enemyProvince, numTroopsToTransfer);</span>
+<span class="nc" id="L114">          provinceToNumberTroopsMap.put(humanProvince, provinceToNumberTroopsMap.get(humanProvince)-numTroopsToTransfer);</span>
+<span class="nc" id="L115">          provinceToOwningFactionMap.put(enemyProvince, humanFaction);</span>
+<span class="nc" id="L116">          printMessageToTerminal(&quot;Won battle!&quot;);</span>
+<span class="nc" id="L117">        }</span>
+        else{
+          // enemy won. Human loses 60% of soldiers in the province
+<span class="nc" id="L120">          int numTroopsLost = provinceToNumberTroopsMap.get(humanProvince)*3/5;</span>
+<span class="nc" id="L121">          provinceToNumberTroopsMap.put(humanProvince, provinceToNumberTroopsMap.get(humanProvince)-numTroopsLost);</span>
+<span class="nc" id="L122">          printMessageToTerminal(&quot;Lost battle!&quot;);</span>
+        }
+<span class="nc" id="L124">        resetSelections();  // reset selections in UI</span>
+<span class="nc" id="L125">        addAllPointGraphics(); // reset graphics</span>
+<span class="nc" id="L126">      }</span>
+      else{
+<span class="nc" id="L128">        printMessageToTerminal(&quot;Provinces not adjacent, cannot invade!&quot;);</span>
+      }
+
+    }
+<span class="nc" id="L132">  }</span>
+
+  /**
+   * run this initially to update province owner, change feature in each
+   * FeatureLayer to be visible/invisible depending on owner. Can also update
+   * graphics initially
+   */
+  private void initializeProvinceLayers() throws JsonParseException, JsonMappingException, IOException {
+
+<span class="nc" id="L141">    Basemap myBasemap = Basemap.createImagery();</span>
+    // myBasemap.getReferenceLayers().remove(0);
+<span class="nc" id="L143">    map = new ArcGISMap(myBasemap);</span>
+<span class="nc" id="L144">    mapView.setMap(map);</span>
+
+    // note - tried having different FeatureLayers for AI and human provinces to
+    // allow different selection colors, but deprecated setSelectionColor method
+    // does nothing
+    // so forced to only have 1 selection color (unless construct graphics overlays
+    // to give color highlighting)
+<span class="nc" id="L151">    GeoPackage gpkg_provinces = new GeoPackage(&quot;src/unsw/gloriaromanus/provinces_right_hand_fixed.gpkg&quot;);</span>
+<span class="nc" id="L152">    gpkg_provinces.loadAsync();</span>
+<span class="nc" id="L153">    gpkg_provinces.addDoneLoadingListener(() -&gt; {</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">      if (gpkg_provinces.getLoadStatus() == LoadStatus.LOADED) {</span>
+        // create province border feature
+<span class="nc" id="L156">        featureLayer_provinces = createFeatureLayer(gpkg_provinces);</span>
+<span class="nc" id="L157">        map.getOperationalLayers().add(featureLayer_provinces);</span>
+
+      } else {
+<span class="nc" id="L160">        System.out.println(&quot;load failure&quot;);</span>
+      }
+<span class="nc" id="L162">    });</span>
+
+<span class="nc" id="L164">    addAllPointGraphics();</span>
+<span class="nc" id="L165">  }</span>
+
+  private void addAllPointGraphics() throws JsonParseException, JsonMappingException, IOException {
+<span class="nc" id="L168">    mapView.getGraphicsOverlays().clear();</span>
+
+<span class="nc" id="L170">    InputStream inputStream = new FileInputStream(new File(&quot;src/unsw/gloriaromanus/provinces_label.geojson&quot;));</span>
+<span class="nc" id="L171">    FeatureCollection fc = new ObjectMapper().readValue(inputStream, FeatureCollection.class);</span>
+
+<span class="nc" id="L173">    GraphicsOverlay graphicsOverlay = new GraphicsOverlay();</span>
+
+<span class="nc bnc" id="L175" title="All 2 branches missed.">    for (org.geojson.Feature f : fc.getFeatures()) {</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">      if (f.getGeometry() instanceof org.geojson.Point) {</span>
+<span class="nc" id="L177">        org.geojson.Point p = (org.geojson.Point) f.getGeometry();</span>
+<span class="nc" id="L178">        LngLatAlt coor = p.getCoordinates();</span>
+<span class="nc" id="L179">        Point curPoint = new Point(coor.getLongitude(), coor.getLatitude(), SpatialReferences.getWgs84());</span>
+<span class="nc" id="L180">        PictureMarkerSymbol s = null;</span>
+<span class="nc" id="L181">        String province = (String) f.getProperty(&quot;name&quot;);</span>
+<span class="nc" id="L182">        String faction = provinceToOwningFactionMap.get(province);</span>
+
+<span class="nc" id="L184">        TextSymbol t = new TextSymbol(10,</span>
+<span class="nc" id="L185">            faction + &quot;\n&quot; + province + &quot;\n&quot; + provinceToNumberTroopsMap.get(province), 0xFFFF0000,</span>
+            HorizontalAlignment.CENTER, VerticalAlignment.BOTTOM);
+
+<span class="nc bnc" id="L188" title="All 3 branches missed.">        switch (faction) {</span>
+          case &quot;Gaul&quot;:
+            // note can instantiate a PictureMarkerSymbol using the JavaFX Image class - so could
+            // construct it with custom-produced BufferedImages stored in Ram
+            // http://jens-na.github.io/2013/11/06/java-how-to-concat-buffered-images/
+            // then you could convert it to JavaFX image https://stackoverflow.com/a/30970114
+
+            // you can pass in a filename to create a PictureMarkerSymbol...
+<span class="nc" id="L196">            s = new PictureMarkerSymbol(new Image((new File(&quot;images/Celtic_Druid.png&quot;)).toURI().toString()));</span>
+<span class="nc" id="L197">            break;</span>
+          case &quot;Rome&quot;:
+            // you can also pass in a javafx Image to create a PictureMarkerSymbol (different to BufferedImage)
+<span class="nc" id="L200">            s = new PictureMarkerSymbol(&quot;images/legionary.png&quot;);</span>
+            break;
+          // TODO = handle all faction names, and find a better structure...
+        }
+<span class="nc" id="L204">        t.setHaloColor(0xFFFFFFFF);</span>
+<span class="nc" id="L205">        t.setHaloWidth(2);</span>
+<span class="nc" id="L206">        Graphic gPic = new Graphic(curPoint, s);</span>
+<span class="nc" id="L207">        Graphic gText = new Graphic(curPoint, t);</span>
+<span class="nc" id="L208">        graphicsOverlay.getGraphics().add(gPic);</span>
+<span class="nc" id="L209">        graphicsOverlay.getGraphics().add(gText);</span>
+<span class="nc" id="L210">      } else {</span>
+<span class="nc" id="L211">        System.out.println(&quot;Non-point geo json object in file&quot;);</span>
+      }
+
+<span class="nc" id="L214">    }</span>
+
+<span class="nc" id="L216">    inputStream.close();</span>
+<span class="nc" id="L217">    mapView.getGraphicsOverlays().add(graphicsOverlay);</span>
+<span class="nc" id="L218">  }</span>
+
+  private FeatureLayer createFeatureLayer(GeoPackage gpkg_provinces) {
+<span class="nc" id="L221">    FeatureTable geoPackageTable_provinces = gpkg_provinces.getGeoPackageFeatureTables().get(0);</span>
+
+    // Make sure a feature table was found in the package
+<span class="nc bnc" id="L224" title="All 2 branches missed.">    if (geoPackageTable_provinces == null) {</span>
+<span class="nc" id="L225">      System.out.println(&quot;no geoPackageTable found&quot;);</span>
+<span class="nc" id="L226">      return null;</span>
+    }
+
+    // Create a layer to show the feature table
+<span class="nc" id="L230">    FeatureLayer flp = new FeatureLayer(geoPackageTable_provinces);</span>
+
+    // https://developers.arcgis.com/java/latest/guide/identify-features.htm
+    // listen to the mouse clicked event on the map view
+<span class="nc" id="L234">    mapView.setOnMouseClicked(e -&gt; {</span>
+      // was the main button pressed?
+<span class="nc bnc" id="L236" title="All 2 branches missed.">      if (e.getButton() == MouseButton.PRIMARY) {</span>
+        // get the screen point where the user clicked or tapped
+<span class="nc" id="L238">        Point2D screenPoint = new Point2D(e.getX(), e.getY());</span>
+
+        // specifying the layer to identify, where to identify, tolerance around point,
+        // to return pop-ups only, and
+        // maximum results
+        // note - if select right on border, even with 0 tolerance, can select multiple
+        // features - so have to check length of result when handling it
+<span class="nc" id="L245">        final ListenableFuture&lt;IdentifyLayerResult&gt; identifyFuture = mapView.identifyLayerAsync(flp,</span>
+            screenPoint, 0, false, 25);
+
+        // add a listener to the future
+<span class="nc" id="L249">        identifyFuture.addDoneListener(() -&gt; {</span>
+          try {
+            // get the identify results from the future - returns when the operation is
+            // complete
+<span class="nc" id="L253">            IdentifyLayerResult identifyLayerResult = identifyFuture.get();</span>
+            // a reference to the feature layer can be used, for example, to select
+            // identified features
+<span class="nc bnc" id="L256" title="All 2 branches missed.">            if (identifyLayerResult.getLayerContent() instanceof FeatureLayer) {</span>
+<span class="nc" id="L257">              FeatureLayer featureLayer = (FeatureLayer) identifyLayerResult.getLayerContent();</span>
+              // select all features that were identified
+<span class="nc" id="L259">              List&lt;Feature&gt; features = identifyLayerResult.getElements().stream().map(f -&gt; (Feature) f).collect(Collectors.toList());</span>
+
+<span class="nc bnc" id="L261" title="All 2 branches missed.">              if (features.size() &gt; 1){</span>
+<span class="nc" id="L262">                printMessageToTerminal(&quot;Have more than 1 element - you might have clicked on boundary!&quot;);</span>
+              }
+<span class="nc bnc" id="L264" title="All 2 branches missed.">              else if (features.size() == 1){</span>
+                // note maybe best to track whether selected...
+<span class="nc" id="L266">                Feature f = features.get(0);</span>
+<span class="nc" id="L267">                String province = (String)f.getAttributes().get(&quot;name&quot;);</span>
+
+<span class="nc bnc" id="L269" title="All 2 branches missed.">                if (provinceToOwningFactionMap.get(province).equals(humanFaction)){</span>
+                  // province owned by human
+<span class="nc bnc" id="L271" title="All 2 branches missed.">                  if (currentlySelectedHumanProvince != null){</span>
+<span class="nc" id="L272">                    featureLayer.unselectFeature(currentlySelectedHumanProvince);</span>
+                  }
+<span class="nc" id="L274">                  currentlySelectedHumanProvince = f;</span>
+<span class="nc" id="L275">                  invading_province.setText(province);</span>
+                }
+                else{
+<span class="nc bnc" id="L278" title="All 2 branches missed.">                  if (currentlySelectedEnemyProvince != null){</span>
+<span class="nc" id="L279">                    featureLayer.unselectFeature(currentlySelectedEnemyProvince);</span>
+                  }
+<span class="nc" id="L281">                  currentlySelectedEnemyProvince = f;</span>
+<span class="nc" id="L282">                  opponent_province.setText(province);</span>
+                }
+
+<span class="nc" id="L285">                featureLayer.selectFeature(f);                </span>
+              }
+
+              
+            }
+<span class="nc" id="L290">          } catch (InterruptedException | ExecutionException ex) {</span>
+            // ... must deal with checked exceptions thrown from the async identify
+            // operation
+<span class="nc" id="L293">            System.out.println(&quot;InterruptedException occurred&quot;);</span>
+<span class="nc" id="L294">          }</span>
+<span class="nc" id="L295">        });</span>
+      }
+<span class="nc" id="L297">    });</span>
+<span class="nc" id="L298">    return flp;</span>
+  }
+
+  private Map&lt;String, String&gt; getProvinceToOwningFactionMap() throws IOException {
+<span class="nc" id="L302">    String content = Files.readString(Paths.get(&quot;src/unsw/gloriaromanus/initial_province_ownership.json&quot;));</span>
+<span class="nc" id="L303">    JSONObject ownership = new JSONObject(content);</span>
+<span class="nc" id="L304">    Map&lt;String, String&gt; m = new HashMap&lt;String, String&gt;();</span>
+<span class="nc bnc" id="L305" title="All 2 branches missed.">    for (String key : ownership.keySet()) {</span>
+      // key will be the faction name
+<span class="nc" id="L307">      JSONArray ja = ownership.getJSONArray(key);</span>
+      // value is province name
+<span class="nc bnc" id="L309" title="All 2 branches missed.">      for (int i = 0; i &lt; ja.length(); i++) {</span>
+<span class="nc" id="L310">        String value = ja.getString(i);</span>
+<span class="nc" id="L311">        m.put(value, key);</span>
+      }
+<span class="nc" id="L313">    }</span>
+<span class="nc" id="L314">    return m;</span>
+  }
+
+  private ArrayList&lt;String&gt; getHumanProvincesList() throws IOException {
+    // https://developers.arcgis.com/labs/java/query-a-feature-layer/
+
+<span class="nc" id="L320">    String content = Files.readString(Paths.get(&quot;src/unsw/gloriaromanus/initial_province_ownership.json&quot;));</span>
+<span class="nc" id="L321">    JSONObject ownership = new JSONObject(content);</span>
+<span class="nc" id="L322">    return ArrayUtil.convert(ownership.getJSONArray(humanFaction));</span>
+  }
+
+  /**
+   * returns query for arcgis to get features representing human provinces can
+   * apply this to FeatureTable.queryFeaturesAsync() pass string to
+   * QueryParameters.setWhereClause() as the query string
+   */
+  private String getHumanProvincesQuery() throws IOException {
+<span class="nc" id="L331">    LinkedList&lt;String&gt; l = new LinkedList&lt;String&gt;();</span>
+<span class="nc bnc" id="L332" title="All 2 branches missed.">    for (String hp : getHumanProvincesList()) {</span>
+<span class="nc" id="L333">      l.add(&quot;name='&quot; + hp + &quot;'&quot;);</span>
+<span class="nc" id="L334">    }</span>
+<span class="nc" id="L335">    return &quot;(&quot; + String.join(&quot; OR &quot;, l) + &quot;)&quot;;</span>
+  }
+
+  private boolean confirmIfProvincesConnected(String province1, String province2) throws IOException {
+<span class="nc" id="L339">    String content = Files.readString(Paths.get(&quot;src/unsw/gloriaromanus/province_adjacency_matrix_fully_connected.json&quot;));</span>
+<span class="nc" id="L340">    JSONObject provinceAdjacencyMatrix = new JSONObject(content);</span>
+<span class="nc" id="L341">    return provinceAdjacencyMatrix.getJSONObject(province1).getBoolean(province2);</span>
+  }
+
+  private void resetSelections(){
+<span class="nc" id="L345">    featureLayer_provinces.unselectFeatures(Arrays.asList(currentlySelectedEnemyProvince, currentlySelectedHumanProvince));</span>
+<span class="nc" id="L346">    currentlySelectedEnemyProvince = null;</span>
+<span class="nc" id="L347">    currentlySelectedHumanProvince = null;</span>
+<span class="nc" id="L348">    invading_province.setText(&quot;&quot;);</span>
+<span class="nc" id="L349">    opponent_province.setText(&quot;&quot;);</span>
+<span class="nc" id="L350">  }</span>
+
+  private void printMessageToTerminal(String message){
+<span class="nc" id="L353">    output_terminal.appendText(message+&quot;\n&quot;);</span>
+<span class="nc" id="L354">  }</span>
+
+  /**
+   * Stops and releases all resources used in application.
+   */
+  void terminate() {
+
+<span class="nc bnc" id="L361" title="All 2 branches missed.">    if (mapView != null) {</span>
+<span class="nc" id="L362">      mapView.dispose();</span>
+    }
+<span class="nc" id="L364">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

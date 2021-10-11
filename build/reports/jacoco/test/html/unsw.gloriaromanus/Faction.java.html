@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Faction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">m13a-bug</a> &gt; <a href="index.source.html" class="el_package">unsw.gloriaromanus</a> &gt; <span class="el_source">Faction.java</span></div><h1>Faction.java</h1><pre class="source lang-java linenums">package unsw.gloriaromanus;
+
+import java.util.ArrayList;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+public class Faction {
+    private String name;
+    private ArrayList&lt;Province&gt; provinces;
+<span class="fc" id="L10">    String content = &quot;{\r\n  \&quot;Rome\&quot;: [\r\n    \&quot;Lugdunensis\&quot;,\r\n    \&quot;Lusitania\&quot;,\r\n    \&quot;Lycia et Pamphylia\&quot;,\r\n    \&quot;Macedonia\&quot;,\r\n    \&quot;Mauretania Caesariensis\&quot;,\r\n    \&quot;Mauretania Tingitana\&quot;,\r\n    \&quot;Moesia Inferior\&quot;,\r\n    \&quot;Moesia Superior\&quot;,\r\n    \&quot;Narbonensis\&quot;,\r\n    \&quot;Noricum\&quot;,\r\n    \&quot;Numidia\&quot;,\r\n    \&quot;Pannonia Inferior\&quot;,\r\n    \&quot;Pannonia Superior\&quot;,\r\n    \&quot;Raetia\&quot;,\r\n    \&quot;Sardinia et Corsica\&quot;,\r\n    \&quot;Sicilia\&quot;,\r\n    \&quot;Syria\&quot;,\r\n    \&quot;Tarraconensis\&quot;,\r\n    \&quot;Thracia\&quot;,\r\n    \&quot;V\&quot;,\r\n    \&quot;VI\&quot;,\r\n    \&quot;VII\&quot;,\r\n    \&quot;VIII\&quot;,\r\n    \&quot;X\&quot;,\r\n    \&quot;XI\&quot;\r\n  ],\r\n  \&quot;Gaul\&quot;: [\r\n    \&quot;Achaia\&quot;,\r\n    \&quot;Aegyptus\&quot;,\r\n    \&quot;Africa Proconsularis\&quot;,\r\n    \&quot;Alpes Cottiae\&quot;,\r\n    \&quot;Alpes Graiae et Poeninae\&quot;,\r\n    \&quot;Alpes Maritimae\&quot;,\r\n    \&quot;Aquitania\&quot;,\r\n    \&quot;Arabia\&quot;,\r\n    \&quot;Armenia Mesopotamia\&quot;,\r\n    \&quot;Asia\&quot;,\r\n    \&quot;Baetica\&quot;,\r\n    \&quot;Belgica\&quot;,\r\n    \&quot;Bithynia et Pontus\&quot;,\r\n    \&quot;Britannia\&quot;,\r\n    \&quot;Cilicia\&quot;,\r\n    \&quot;Creta et Cyrene\&quot;,\r\n    \&quot;Cyprus\&quot;,\r\n    \&quot;Dacia\&quot;,\r\n    \&quot;Dalmatia\&quot;,\r\n    \&quot;Galatia et Cappadocia\&quot;,\r\n    \&quot;Germania Inferior\&quot;,\r\n    \&quot;Germania Superior\&quot;,\r\n    \&quot;I\&quot;,\r\n    \&quot;II\&quot;,\r\n    \&quot;III\&quot;,\r\n    \&quot;IV\&quot;,\r\n    \&quot;IX\&quot;,\r\n    \&quot;Iudaea\&quot;\r\n  ]\r\n}&quot;;</span>
+<span class="fc" id="L11">    JSONObject unitInfo = new JSONObject(content);</span>
+
+<span class="fc" id="L13">    public Faction(String nm) throws Exception {</span>
+<span class="fc" id="L14">        this.name=nm;</span>
+<span class="fc" id="L15">        setFactions(nm);</span>
+<span class="fc" id="L16">    }</span>
+
+    /**
+     * create a faction of name faction
+     * @param faction the name
+     * @throws Exception
+     */
+    public void setFactions(String faction) throws Exception{
+<span class="fc" id="L24">        JSONArray rps = unitInfo.getJSONArray(faction);</span>
+<span class="fc" id="L25">        ArrayList&lt;Province&gt; res = new ArrayList&lt;Province&gt;();</span>
+<span class="fc bfc" id="L26" title="All 2 branches covered.">        for(Object j: rps){</span>
+<span class="fc" id="L27">            Province n = new Province(j.toString());</span>
+<span class="fc" id="L28">            res.add(n);</span>
+<span class="fc" id="L29">        }</span>
+<span class="fc" id="L30">        provinces = res;</span>
+<span class="fc" id="L31">    }</span>
+    public void setOwner(Player p){
+<span class="fc bfc" id="L33" title="All 2 branches covered.">        for(Province pv: provinces){</span>
+<span class="fc" id="L34">            pv.setOwner(p);</span>
+<span class="fc" id="L35">        }</span>
+<span class="fc" id="L36">    }</span>
+    public String getName(){
+<span class="fc" id="L38">        return name;</span>
+    }
+    public ArrayList&lt;Province&gt; getProvinces(){
+<span class="fc" id="L41">        return provinces;</span>
+    }
+
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

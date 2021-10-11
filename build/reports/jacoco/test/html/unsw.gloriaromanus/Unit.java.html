@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Unit.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">m13a-bug</a> &gt; <a href="index.source.html" class="el_package">unsw.gloriaromanus</a> &gt; <span class="el_source">Unit.java</span></div><h1>Unit.java</h1><pre class="source lang-java linenums">// import package
+package unsw.gloriaromanus;
+
+// import libraries
+import java.io.*;
+import org.json.JSONObject;
+
+/**
+ * Represents a basic unit of soldiers
+ * 
+ * incomplete - should have heavy infantry, skirmishers, spearmen, lancers, heavy cavalry, elephants, chariots, archers, slingers, horse-archers, onagers, ballista, etc...
+ * higher classes include ranged infantry, cavalry, infantry, artillery
+ * 
+ * current version represents a heavy infantry unit (almost no range, decent armour and morale)
+ */
+public class Unit {
+
+    private String attackType; // melee or missile
+    private String kind; // name of the troop
+    private int morale; // resistance to fleeing
+    private int damage; // damage value
+    private int charge; // charge value
+    private Province location; // location the unit is currently in
+    private String state; // trained or untrained
+    private int movementPoints; // based on the spec
+    private int currentMovementPoints; // how many points left
+    private int initialSize; // the initial number of troops in this unit
+    private int currentSize; // range of the unit
+    private int recruitCost; // cost for recruit
+    private int trainCost; // cost fot train
+    private int speed;  // ability to disengage from disadvantageous battle
+    private int armour;  // armour defense 
+    private int defenseSkill;  // skill to defend in battle. Does not protect from arrows!
+    private int shieldDefense; // a shield
+    private Province prevP; //previous province, for attack
+    private Boolean broken; // if unit is broken or not
+
+    /**
+     * constructor for unit
+     * @param kind name of the troop
+     * @param location the province the unit is currently in
+     * @param initialSize initial size of the unit
+     * @throws IOException when unit type is not defined
+     */
+<span class="fc" id="L45">    public Unit(String kind, Province location) throws IOException {</span>
+
+        // read the units from units json config file
+<span class="fc" id="L48">        String content = &quot;{\r\n    \&quot;Cavalry\&quot;: {\r\n        \&quot;attackType\&quot; : \&quot;melee\&quot;,\r\n        \&quot;morale\&quot; : 40,\r\n        \&quot;damage\&quot; : 38,\r\n        \&quot;charge\&quot;: 28,\r\n        \&quot;movementPoints\&quot; : 15,\r\n        \&quot;recruitCost\&quot; : 490,\r\n        \&quot;trainCost\&quot; : 100,\r\n        \&quot;speed\&quot; : 10,\r\n        \&quot;armour\&quot; : 15,\r\n        \&quot;defenseSkill\&quot; : 50,\r\n        \&quot;shieldDefense\&quot; : 7\r\n\r\n    },\r\n\r\n    \&quot;Infantry\&quot;: {\r\n        \&quot;attackType\&quot; : \&quot;melee\&quot;,\r\n        \&quot;morale\&quot; : 25,\r\n        \&quot;damage\&quot; : 26,\r\n        \&quot;charge\&quot;: 10,\r\n        \&quot;movementPoints\&quot; : 10,\r\n        \&quot;recruitCost\&quot; : 260,\r\n        \&quot;trainCost\&quot; : 60,\r\n        \&quot;speed\&quot; : 7,\r\n        \&quot;armour\&quot; : 45,\r\n        \&quot;defenseSkill\&quot; : 36,\r\n        \&quot;shieldDefense\&quot; : 15\r\n    },\r\n\r\n    \&quot;Artillery\&quot;: {\r\n        \&quot;attackType\&quot; : \&quot;missile\&quot;,\r\n        \&quot;morale\&quot; : 40,\r\n        \&quot;damage\&quot; : 24,\r\n        \&quot;charge\&quot;: 6,\r\n        \&quot;movementPoints\&quot; : 4,\r\n        \&quot;recruitCost\&quot; : 560,\r\n        \&quot;trainCost\&quot; : 110,\r\n        \&quot;speed\&quot; : 3,\r\n        \&quot;armour\&quot; : 40,\r\n        \&quot;defenseSkill\&quot; : 14,\r\n        \&quot;shieldDefense\&quot; : 15\r\n    },\r\n\r\n    \&quot;Heavy infantry\&quot;: {\r\n        \&quot;attackType\&quot; : \&quot;melee\&quot;,\r\n        \&quot;morale\&quot; : 30,\r\n        \&quot;damage\&quot; : 25,\r\n        \&quot;charge\&quot;: 11,\r\n        \&quot;movementPoints\&quot; : 10,\r\n        \&quot;recruitCost\&quot; : 190,\r\n        \&quot;trainCost\&quot; : 60,\r\n        \&quot;speed\&quot; : 4,\r\n        \&quot;armour\&quot; : 45,\r\n        \&quot;defenseSkill\&quot; : 34,\r\n        \&quot;shieldDefense\&quot; : 20\r\n    },\r\n\r\n    \&quot;Spearmen\&quot;: {\r\n        \&quot;attackType\&quot; : \&quot;melee\&quot;,\r\n        \&quot;morale\&quot; : 25,\r\n        \&quot;damage\&quot; : 25,\r\n        \&quot;charge\&quot;: 11,\r\n        \&quot;movementPoints\&quot; : 15,\r\n        \&quot;recruitCost\&quot; : 230,\r\n        \&quot;trainCost\&quot; : 50,\r\n        \&quot;speed\&quot; : 15,\r\n        \&quot;armour\&quot; : 45,\r\n        \&quot;defenseSkill\&quot; : 34,\r\n        \&quot;shieldDefense\&quot; : 10\r\n    },\r\n\r\n    \&quot;Missile infantry\&quot;: {\r\n        \&quot;attackType\&quot; : \&quot;missile\&quot;,\r\n        \&quot;morale\&quot; : 25,\r\n        \&quot;damage\&quot; : 24,\r\n        \&quot;charge\&quot;: 3,\r\n        \&quot;movementPoints\&quot; : 10,\r\n        \&quot;recruitCost\&quot; : 290,\r\n        \&quot;trainCost\&quot; : 70,\r\n        \&quot;speed\&quot; : 10,\r\n        \&quot;armour\&quot; : 10,\r\n        \&quot;defenseSkill\&quot; : 12,\r\n        \&quot;shieldDefense\&quot; : 5\r\n    },\r\n\r\n    \&quot;Melee cavalry\&quot;: {\r\n        \&quot;attackType\&quot; : \&quot;melee\&quot;,\r\n        \&quot;morale\&quot; : 40,\r\n        \&quot;damage\&quot; : 38,\r\n        \&quot;charge\&quot;: 28,\r\n        \&quot;movementPoints\&quot; : 15,\r\n        \&quot;recruitCost\&quot; : 490,\r\n        \&quot;trainCost\&quot; : 100,\r\n        \&quot;speed\&quot; : 10,\r\n        \&quot;armour\&quot; : 15,\r\n        \&quot;defenseSkill\&quot; : 50,\r\n        \&quot;shieldDefense\&quot; : 15\r\n    },\r\n\r\n    \&quot;Horse archers\&quot;: {\r\n        \&quot;attackType\&quot; : \&quot;missile\&quot;,\r\n        \&quot;morale\&quot; : 35,\r\n        \&quot;damage\&quot; : 24,\r\n        \&quot;charge\&quot;: 8,\r\n        \&quot;movementPoints\&quot; : 20,\r\n        \&quot;recruitCost\&quot; : 450,\r\n        \&quot;trainCost\&quot; : 90,\r\n        \&quot;speed\&quot; : 20,\r\n        \&quot;armour\&quot; : 10,\r\n        \&quot;defenseSkill\&quot; : 15,\r\n        \&quot;shieldDefense\&quot; : 6\r\n    },\r\n\r\n    \&quot;Elephants\&quot;: {\r\n        \&quot;attackType\&quot; : \&quot;melee\&quot;,\r\n        \&quot;morale\&quot; : 55,\r\n        \&quot;damage\&quot; : 60,\r\n        \&quot;charge\&quot;: 36,\r\n        \&quot;movementPoints\&quot; : 10,\r\n        \&quot;recruitCost\&quot; : 800,\r\n        \&quot;trainCost\&quot; : 180,\r\n        \&quot;speed\&quot; : 17,\r\n        \&quot;armour\&quot; : 30,\r\n        \&quot;defenseSkill\&quot; : 21,\r\n        \&quot;shieldDefense\&quot; : 5\r\n    },\r\n\r\n    \&quot;Chariots\&quot;: {\r\n        \&quot;attackType\&quot; : \&quot;melee\&quot;,\r\n        \&quot;morale\&quot; : 55,\r\n        \&quot;damage\&quot; : 35,\r\n        \&quot;charge\&quot;: 20,\r\n        \&quot;movementPoints\&quot; : 10,\r\n        \&quot;recruitCost\&quot; : 800,\r\n        \&quot;trainCost\&quot; : 90,\r\n        \&quot;speed\&quot; : 15,\r\n        \&quot;armour\&quot; : 70,\r\n        \&quot;defenseSkill\&quot; : 61,\r\n        \&quot;shieldDefense\&quot; : 20\r\n    }    \r\n}&quot;;</span>
+<span class="fc" id="L49">        JSONObject unitInfo = new JSONObject(content);</span>
+
+        // initialise the attributes
+<span class="fc" id="L52">        this.kind = kind;</span>
+<span class="fc" id="L53">        this.location = location;</span>
+<span class="fc" id="L54">        this.state = &quot;untrained&quot;;</span>
+<span class="fc" id="L55">        this.initialSize = 10;</span>
+<span class="fc" id="L56">        this.currentSize = initialSize;</span>
+<span class="fc" id="L57">        this.prevP = location;</span>
+<span class="fc" id="L58">        this.broken = false;</span>
+<span class="fc" id="L59">        this.attackType = unitInfo.getJSONObject(kind).getString(&quot;attackType&quot;);</span>
+<span class="fc" id="L60">        this.morale = unitInfo.getJSONObject(kind).getInt(&quot;morale&quot;);</span>
+<span class="fc" id="L61">        this.damage = unitInfo.getJSONObject(kind).getInt(&quot;damage&quot;);</span>
+<span class="fc" id="L62">        this.damage = unitInfo.getJSONObject(kind).getInt(&quot;charge&quot;);</span>
+<span class="fc" id="L63">        this.movementPoints= unitInfo.getJSONObject(kind).getInt(&quot;movementPoints&quot;);</span>
+<span class="fc" id="L64">        this.currentMovementPoints = movementPoints;</span>
+<span class="fc" id="L65">        this.recruitCost = unitInfo.getJSONObject(kind).getInt(&quot;recruitCost&quot;);</span>
+<span class="fc" id="L66">        this.trainCost = unitInfo.getJSONObject(kind).getInt(&quot;trainCost&quot;);</span>
+<span class="fc" id="L67">        this.speed = unitInfo.getJSONObject(kind).getInt(&quot;speed&quot;);</span>
+<span class="fc" id="L68">        this.armour = unitInfo.getJSONObject(kind).getInt(&quot;armour&quot;);</span>
+<span class="fc" id="L69">        this.defenseSkill = unitInfo.getJSONObject(kind).getInt(&quot;defenseSkill&quot;);</span>
+<span class="fc" id="L70">        this.shieldDefense = unitInfo.getJSONObject(kind).getInt(&quot;shieldDefense&quot;);</span>
+
+<span class="fc" id="L72">    }</span>
+
+    /**
+     * 
+     * @return
+     */
+    public Boolean getBroken(){
+<span class="fc" id="L79">        return broken;</span>
+    }
+
+
+    public void setArmour(int a){
+<span class="nc" id="L84">        armour=a;</span>
+<span class="nc" id="L85">    }</span>
+
+    public void setShield(int a){
+<span class="nc" id="L88">        shieldDefense = a;</span>
+<span class="nc" id="L89">    }</span>
+
+    public void setBroken(Boolean b){
+<span class="fc" id="L92">        broken = b;</span>
+<span class="fc" id="L93">    }</span>
+
+    public String getAttackType() {
+<span class="fc" id="L96">        return attackType;</span>
+    }
+
+    public String getKind() {
+<span class="fc" id="L100">        return kind;</span>
+    }
+
+    public int getMorale() {
+<span class="fc" id="L104">        return morale;</span>
+    }
+
+    public int getDamage() {
+<span class="fc" id="L108">        return damage;</span>
+    }
+
+
+    public Province getLocation() {
+<span class="fc" id="L113">        return location;</span>
+    }
+
+    
+    public void setPrevP(Province p){
+<span class="fc" id="L118">        this.prevP = p;</span>
+<span class="fc" id="L119">    }</span>
+
+    public Province getPrevp(){
+<span class="fc" id="L122">        return prevP;</span>
+    }
+    public String getState() {
+<span class="fc" id="L125">        return state;</span>
+    }
+
+    public int getMovementPoints() {
+<span class="fc" id="L129">        return movementPoints;</span>
+    }
+
+    public int getCurrentMovementPoints() {
+<span class="fc" id="L133">        return currentMovementPoints;</span>
+    }
+
+    public int getInitialSize() {
+<span class="fc" id="L137">        return initialSize;</span>
+    }
+
+    public int getCurrentSize() {
+<span class="fc" id="L141">        return currentSize;</span>
+    }
+
+    public void setLocation(Province p){
+<span class="fc" id="L145">        location = p;</span>
+<span class="fc" id="L146">    }</span>
+    public void subtractMovementPoint(int a){
+<span class="fc" id="L148">        currentMovementPoints -= a;</span>
+<span class="fc" id="L149">    }</span>
+    public int getRecruitCost(){
+<span class="nc" id="L151">        return recruitCost;</span>
+    }
+
+    public int getTrainCost() {
+<span class="nc" id="L155">        return trainCost;</span>
+    }
+
+    public int getSpeed() {
+<span class="fc" id="L159">        return speed;</span>
+    }
+
+    public int getArmour() {
+<span class="fc" id="L163">        return armour;</span>
+    }
+
+    public int getDefenseSkill() {
+<span class="fc" id="L167">        return defenseSkill;</span>
+    }
+
+    public int getShieldDefense() {
+<span class="fc" id="L171">        return shieldDefense;</span>
+    }
+
+  
+    public void setMorale(int newMorale) {
+<span class="fc" id="L176">        this.morale = newMorale;</span>
+<span class="fc" id="L177">    }</span>
+
+    public void setInitialSize(int i){
+<span class="fc" id="L180">        initialSize=i;</span>
+<span class="fc" id="L181">    }</span>
+
+    public void setState(String newState) {
+<span class="nc" id="L184">        this.state = newState;</span>
+<span class="nc" id="L185">    }</span>
+
+    public void setCurrentSize(int newCurrentSize) {
+<span class="fc" id="L188">        this.currentSize = newCurrentSize;</span>
+<span class="fc" id="L189">    }</span>
+
+
+    public void resetMP() {
+<span class="nc" id="L193">        this.currentMovementPoints = movementPoints;</span>
+<span class="nc" id="L194">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

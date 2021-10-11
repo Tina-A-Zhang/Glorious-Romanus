@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MeleeMelee.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">m13a-bug</a> &gt; <a href="index.source.html" class="el_package">unsw.gloriaromanus</a> &gt; <span class="el_source">MeleeMelee.java</span></div><h1>MeleeMelee.java</h1><pre class="source lang-java linenums">package unsw.gloriaromanus;
+
+import java.lang.Math;
+
+<span class="nc" id="L5">public class MeleeMelee implements BattleResolver {</span>
+
+    /**
+     * inflict casualty of between two melee units
+     * @param a unit a
+     * @param d unit d
+     */
+    public static void inflictCasualty(Unit a, Unit d) {
+<span class="nc" id="L13">        double n = BattleResolver.getPosGaussian();</span>
+<span class="nc" id="L14">        int dcasualty = (int) Math.round(0.1*d.getInitialSize()*a.getDamage()*(n+1)/(d.getArmour()+d.getShieldDefense()+d.getDefenseSkill()));</span>
+<span class="nc" id="L15">        int acasualty = (int) Math.round(0.1*a.getInitialSize()*d.getDamage()*(n+1)/(a.getArmour()+a.getShieldDefense()+a.getDefenseSkill()));</span>
+<span class="nc bnc" id="L16" title="All 2 branches missed.">        if(a.getBroken())   dcasualty=0;</span>
+<span class="nc bnc" id="L17" title="All 2 branches missed.">        if(d.getBroken())   acasualty=0;</span>
+<span class="nc bnc" id="L18" title="All 2 branches missed.">        if(dcasualty&gt;=d.getCurrentSize()){</span>
+<span class="nc" id="L19">            d.setCurrentSize(0);</span>
+        }else{
+<span class="nc" id="L21">            d.setCurrentSize(d.getCurrentSize()-dcasualty);</span>
+        }
+<span class="nc bnc" id="L23" title="All 2 branches missed.">        if(acasualty&gt;=a.getCurrentSize()){</span>
+<span class="nc" id="L24">            a.setCurrentSize(0);</span>
+        }else{
+<span class="nc" id="L26">            a.setCurrentSize(a.getCurrentSize()-acasualty);</span>
+        }
+<span class="nc bnc" id="L28" title="All 2 branches missed.">        if(a!=null) a.setInitialSize(a.getCurrentSize());</span>
+<span class="nc bnc" id="L29" title="All 2 branches missed.">        if(d!=null) d.setInitialSize(d.getCurrentSize());</span>
+        //HOW AND WHERE DO WE REMOVE THE DEAD UNITS FROM THE USER?????
+<span class="nc" id="L31">    }</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

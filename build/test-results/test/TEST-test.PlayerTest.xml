@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="test.PlayerTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2020-11-01T18:01:58" hostname="ER28-2554.local" time="0.308">
+  <properties/>
+  <testcase name="moveTroopsTest()" classname="test.PlayerTest" time="0.125"/>
+  <testcase name="recruitTest()" classname="test.PlayerTest" time="0.092"/>
+  <testcase name="trainTest()" classname="test.PlayerTest" time="0.086"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

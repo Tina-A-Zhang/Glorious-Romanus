@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MeleeRanged.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">m13a-bug</a> &gt; <a href="index.source.html" class="el_package">unsw.gloriaromanus</a> &gt; <span class="el_source">MeleeRanged.java</span></div><h1>MeleeRanged.java</h1><pre class="source lang-java linenums">package unsw.gloriaromanus;
+
+<span class="nc" id="L3">public class MeleeRanged implements BattleResolver {</span>
+
+
+    /**
+     * inflict casualty between one ranged, one melee unit
+     * engagement type given
+     * @param a unit a
+     * @param d unit d
+     * @param et engagement type
+     */
+    public static void inflictCasualty(Unit a, Unit d, String et) {
+<span class="fc" id="L14">        int acasualty=0;</span>
+<span class="fc" id="L15">        int dcasualty=0;</span>
+<span class="pc bpc" id="L16" title="1 of 2 branches missed.">        if (et.equals(&quot;ranged&quot;)) {</span>
+<span class="nc bnc" id="L17" title="All 2 branches missed.">            if (a.getAttackType().equals(&quot;melee&quot;)) {</span>
+<span class="nc" id="L18">                acasualty = 0;</span>
+<span class="nc" id="L19">                double n = BattleResolver.getPosGaussian();</span>
+<span class="nc" id="L20">                dcasualty = (int) Math.round(0.1 * d.getInitialSize() * a.getDamage() * (n + 1)</span>
+<span class="nc" id="L21">                        / (d.getArmour() + d.getShieldDefense() + d.getDefenseSkill()));</span>
+<span class="nc bnc" id="L22" title="All 2 branches missed.">            } else if (d.getAttackType().equals(&quot;melee&quot;)) {</span>
+<span class="nc" id="L23">                dcasualty = 0;</span>
+<span class="nc" id="L24">                double n = BattleResolver.getPosGaussian();</span>
+<span class="nc" id="L25">                acasualty = (int) Math.round(0.1 * a.getInitialSize() * d.getDamage() * (n + 1)</span>
+<span class="nc" id="L26">                        / (a.getArmour() + a.getShieldDefense() + a.getDefenseSkill()));</span>
+<span class="nc" id="L27">            } </span>
+        }else {
+<span class="fc" id="L29">            double n = BattleResolver.getPosGaussian();</span>
+<span class="fc" id="L30">            dcasualty = (int) Math.round(0.1 * d.getInitialSize() * a.getDamage() * (n + 1)</span>
+<span class="fc" id="L31">                    / (d.getArmour() + d.getShieldDefense() + d.getDefenseSkill()));</span>
+<span class="fc" id="L32">            n = BattleResolver.getPosGaussian();</span>
+<span class="fc" id="L33">            acasualty = (int) Math.round(0.1 * a.getInitialSize() * d.getDamage() * (n + 1)</span>
+<span class="fc" id="L34">                    / (a.getArmour() + a.getShieldDefense() + a.getDefenseSkill()));</span>
+        }
+<span class="pc bpc" id="L36" title="1 of 2 branches missed.">        if(a.getBroken())   dcasualty=0;</span>
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">        if(d.getBroken())   acasualty=0;</span>
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">        if (dcasualty &gt;= d.getCurrentSize()) {</span>
+<span class="nc" id="L39">            d.setCurrentSize(0);</span>
+        } else {
+<span class="fc" id="L41">            d.setCurrentSize(d.getCurrentSize() - dcasualty);</span>
+        }
+
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">        if (acasualty &gt;= a.getCurrentSize()) {</span>
+<span class="nc" id="L45">            a.setCurrentSize(0);</span>
+        } else {
+<span class="fc" id="L47">            a.setCurrentSize(a.getCurrentSize() - acasualty);</span>
+        }
+<span class="pc bpc" id="L49" title="1 of 2 branches missed.">        if (a != null)</span>
+<span class="fc" id="L50">            a.setInitialSize(a.getCurrentSize());</span>
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">        if (d != null)</span>
+<span class="fc" id="L52">            d.setInitialSize(d.getCurrentSize());</span>
+<span class="fc" id="L53">    }</span>
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>
