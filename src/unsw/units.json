@@ -1,0 +1,142 @@
+{
+    "Cavalry": {
+        "attackType" : "melee",
+        "morale" : 40,
+        "damage" : 38,
+        "charge": 28,
+        "movementPoints" : 15,
+        "recruitCost" : 490,
+        "trainCost" : 100,
+        "speed" : 10,
+        "armour" : 15,
+        "defenseSkill" : 50,
+        "shieldDefense" : 7
+
+    },
+
+    "Infantry": {
+        "attackType" : "melee",
+        "morale" : 25,
+        "damage" : 26,
+        "charge": 10,
+        "movementPoints" : 10,
+        "recruitCost" : 260,
+        "trainCost" : 60,
+        "speed" : 7,
+        "armour" : 45,
+        "defenseSkill" : 36,
+        "shieldDefense" : 15
+    },
+
+    "Artillery": {
+        "attackType" : "missile",
+        "morale" : 40,
+        "damage" : 24,
+        "charge": 6,
+        "movementPoints" : 4,
+        "recruitCost" : 560,
+        "trainCost" : 110,
+        "speed" : 3,
+        "armour" : 40,
+        "defenseSkill" : 14,
+        "shieldDefense" : 15
+    },
+
+    "Heavy infantry": {
+        "attackType" : "melee",
+        "morale" : 30,
+        "damage" : 25,
+        "charge": 11,
+        "movementPoints" : 10,
+        "recruitCost" : 190,
+        "trainCost" : 60,
+        "speed" : 4,
+        "armour" : 45,
+        "defenseSkill" : 34,
+        "shieldDefense" : 20
+    },
+
+    "Spearmen": {
+        "attackType" : "melee",
+        "morale" : 25,
+        "damage" : 25,
+        "charge": 11,
+        "movementPoints" : 15,
+        "recruitCost" : 230,
+        "trainCost" : 50,
+        "speed" : 15,
+        "armour" : 45,
+        "defenseSkill" : 34,
+        "shieldDefense" : 10
+    },
+
+    "Missile infantry": {
+        "attackType" : "missile",
+        "morale" : 25,
+        "damage" : 24,
+        "charge": 3,
+        "movementPoints" : 10,
+        "recruitCost" : 290,
+        "trainCost" : 70,
+        "speed" : 10,
+        "armour" : 10,
+        "defenseSkill" : 12,
+        "shieldDefense" : 5
+    },
+
+    "Melee cavalry": {
+        "attackType" : "melee",
+        "morale" : 40,
+        "damage" : 38,
+        "charge": 28,
+        "movementPoints" : 15,
+        "recruitCost" : 490,
+        "trainCost" : 100,
+        "speed" : 10,
+        "armour" : 15,
+        "defenseSkill" : 50,
+        "shieldDefense" : 15
+    },
+
+    "Horse archers": {
+        "attackType" : "missile",
+        "morale" : 35,
+        "damage" : 24,
+        "charge": 8,
+        "movementPoints" : 20,
+        "recruitCost" : 450,
+        "trainCost" : 90,
+        "speed" : 20,
+        "armour" : 10,
+        "defenseSkill" : 15,
+        "shieldDefense" : 6
+    },
+
+    "Elephants": {
+        "attackType" : "melee",
+        "morale" : 55,
+        "damage" : 60,
+        "charge": 36,
+        "movementPoints" : 10,
+        "recruitCost" : 800,
+        "trainCost" : 180,
+        "speed" : 17,
+        "armour" : 30,
+        "defenseSkill" : 21,
+        "shieldDefense" : 5
+    },
+
+    "Chariots": {
+        "attackType" : "melee",
+        "morale" : 55,
+        "damage" : 35,
+        "charge": 20,
+        "movementPoints" : 10,
+        "recruitCost" : 800,
+        "trainCost" : 9000,
+        "speed" : 15,
+        "armour" : 70,
+        "defenseSkill" : 61,
+        "shieldDefense" : 20
+    }    
+}

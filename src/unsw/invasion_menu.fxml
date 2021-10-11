@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.Background?>
+<?import javafx.scene.layout.BackgroundFill?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.paint.Color?>
+
+<VBox maxWidth="250" spacing="10" stylesheets="/unsw/gloriaromanus/style.css" StackPane.alignment="TOP_LEFT" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="unsw.gloriaromanus.InvasionMenuController">
+    <padding>
+        <Insets topRightBottomLeft="10" />
+    </padding>
+    <background>
+        <Background>
+            <fills>
+                <BackgroundFill>
+                    <fill>
+                        <Color opacity="0.3" />
+                    </fill>
+                </BackgroundFill>
+            </fills>
+        </Background>
+    </background>
+   <HBox>
+      <children>
+         <VBox alignment="CENTER">
+            <children>
+               <Label fx:id="myl" alignment="CENTER" contentDisplay="CENTER" styleClass="test" textAlignment="CENTER" />
+            </children>
+         </VBox>
+      </children>
+   </HBox>
+    <HBox alignment="CENTER">
+        <VBox>
+            <Label styleClass="test" text="Your province" />
+            <TextField fx:id="invading_province" editable="false" text="" />
+        </VBox>
+        <VBox>
+            <Label styleClass="test" text="Enemy province" />
+            <TextField fx:id="opponent_province" editable="false" text="" />
+        </VBox>
+    </HBox>
+   <HBox prefHeight="27.0" prefWidth="230.0">
+      <children>
+         <Button mnemonicParsing="false" onAction="#upgrade" prefHeight="27.0" prefWidth="117.0" text="Upgrade" />
+         <ChoiceBox fx:id="buildingBox" onMouseClicked="#loadBuildingBoxList" prefHeight="27.0" prefWidth="115.0" styleClass="panel-region" />
+      </children>
+   </HBox>
+    <HBox>
+         <children>
+            <Button mnemonicParsing="false" onAction="#recruitButton" prefHeight="27.0" prefWidth="151.0" text="Recruit" />
+            <ChoiceBox fx:id="units" onMouseClicked="#loadRecruitBox" prefWidth="150.0" styleClass="panel-region" />
+         </children>
+      </HBox>
+      <HBox>
+         <children>
+            <Button mnemonicParsing="false" onAction="#trainUnit" prefHeight="27.0" prefWidth="151.0" text="Train" />
+            <ChoiceBox fx:id="trainBox" onMouseClicked="#loadTrainBox" prefWidth="150.0" styleClass="panel-region" />
+         </children>
+      </HBox>
+      <HBox>
+         <children>
+            <Button mnemonicParsing="false" onAction="#taxButton" prefHeight="27.0" prefWidth="151.0" text="Set Tax" />
+            <ChoiceBox fx:id="taxBox" prefWidth="150.0" styleClass="panel-region" />
+         </children>
+      </HBox>
+      <HBox>
+         <children>
+            <ChoiceBox fx:id="moveTroopBox" onMouseClicked="#loadMoveBox" prefHeight="27.0" prefWidth="124.0" styleClass="panel-region" />
+            <Button mnemonicParsing="false" onAction="#moveButton" prefHeight="27.0" prefWidth="102.0" text="Move" />
+            <ChoiceBox fx:id="destBox" onMouseClicked="#loadDestBox" prefHeight="27.0" prefWidth="124.0" styleClass="panel-region" />
+         </children>
+      </HBox>
+      <HBox>
+         <children>
+              <Button onAction="#clickedInvadeButton" prefHeight="27.0" prefWidth="148.0" text="Invade" />
+            <ChoiceBox fx:id="attackBox" onMouseClicked="#loadAttackBox" prefHeight="27.0" prefWidth="148.0" styleClass="panel-region" />
+         </children>
+      </HBox>
+      <Button onAction="#clickedEndTurn" prefHeight="27.0" prefWidth="257.0" text="END TURN" />
+    <VBox>
+        <Label styleClass="test" text="Output from interactions" />
+        <TextArea fx:id="output_terminal" editable="false" text="" />
+      <HBox prefHeight="100.0" prefWidth="200.0">
+         <children>
+             <Button onAction="#clickedSwitchMenu" text="Back" />
+            <Button onAction="#showInfoButton" text="Show wealth Info" />
+         </children>
+      </HBox>
+    </VBox>
+</VBox>

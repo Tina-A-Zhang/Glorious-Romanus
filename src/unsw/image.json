@@ -1,0 +1,58 @@
+{
+    "Cavalry": {
+        "address": "images/CS2511Sprites_No_Background/Horse/Horse_Lancer/Horse_Lancer_NB.png",
+        "offset_longitude" : 0.0,
+        "offset_latitude" : 0.1
+    },
+
+    "Infantry": {
+        "address": "images/CS2511Sprites_No_Background/Pikeman/Pikeman_NB.png",
+        "offset_longitude" : 0.0,
+        "offset_latitude" : 0.15
+    },
+
+    "Artillery": {
+        "address": "images/CS2511Sprites_No_Background/Trebuchet/Trebuchet_NB.png",
+        "offset_longitude" : 0.0,
+        "offset_latitude" : -0.1
+    },
+
+    "Heavy infantry": {
+        "address": "images/CS2511Sprites_No_Background/Swordsman/Swordsman_NB.png",
+        "offset_longitude" : 0.0,
+        "offset_latitude" : -0.15
+    },
+
+    "Spearmen": {
+        "address": "images/CS2511Sprites_No_Background/Spearman/Spearman_NB.png",
+        "offset_longitude" : 0.1,
+        "offset_latitude" : 0.0
+    },
+
+    "Missile infantry": {
+        "address": "images/CS2511Sprites_No_Background/Hoplite/Hoplite_NB.png",
+        "offset_longitude" : 0.15,
+        "offset_latitude" : 0.0
+    },
+
+    "Melee cavalry": {
+        "address":"images/CS2511Sprites_No_Background/Horse/Horse_Heavy_Cavalry/Horse_Heavy_Cavalry_NB.png",
+        "offset_longitude" : -0.1,
+        "offset_latitude" : 0.0
+    },
+    "Horse archers": {
+        "address": "images/CS2511Sprites_No_Background/Horse/Horse_Archer/Horse_Archer_NB.png",
+        "offset_longitude" : -0.15,
+        "offset_latitude" : 0.0
+    },
+    "Elephants": {
+        "address": "images/CS2511Sprites_No_Background/Elephant/Elephant_Archers/Elephant_Archers_NB.png",
+        "offset_longitude" : 0.05,
+        "offset_latitude" : 0.05
+    },
+    "Chariots": {
+        "address": "images/CS2511Sprites_No_Background/Chariot/Chariot_NB.png",
+        "offset_longitude" : 0.05,
+        "offset_latitude" : -0.05
+    }
+}
